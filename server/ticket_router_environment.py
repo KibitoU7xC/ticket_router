@@ -40,7 +40,13 @@ class TicketRouterEnvironment(Environment):
         episode_id: Optional[str] = None,
         **kwargs: Any,
     ) -> Observation:
-        self._state = State(current_ticket_id=0, total_resolved=0, failed_attempts=0)
+        ticket_id = 0
+        if episode_id:
+            try:
+                ticket_id = int(str(episode_id).split("_")[-1]) % len(MOCK_TICKETS)
+            except ValueError:
+                pass
+        self._state = State(current_ticket_id=ticket_id, total_resolved=0, failed_attempts=0)
         return self._get_observation()
 
     def step(
@@ -53,7 +59,7 @@ class TicketRouterEnvironment(Environment):
         
         # Grading Logic
         if action.department == current_ticket["target"]:
-            reward = 1.0
+            reward = 0.95  # strictly between 0 and 1
             self._state.total_resolved += 1
             self._state.failed_attempts = 0
             # Move to next ticket
@@ -61,7 +67,7 @@ class TicketRouterEnvironment(Environment):
             # Done only when all tickets have been resolved
             done = self._state.total_resolved >= len(MOCK_TICKETS)
         else:
-            reward = -0.5  # Penalty for wrong department
+            reward = 0.05  # Penalty for wrong department strictly between 0 and 1
             self._state.failed_attempts += 1
             # End episode if they fail too many times on the same ticket
             done = self._state.failed_attempts >= 3
