@@ -37,14 +37,14 @@ except Exception as e:  # pragma: no cover
 
 try:
     from ..models import Action as TicketRouterAction, Observation as TicketRouterObservation
-    from .ticket_router_environment import TicketRouterEnvironment
+    from .ticket_router_environment import AstroEnvironment as TicketRouterEnvironment
 except (ImportError, ModuleNotFoundError):
     try:
         from models import Action as TicketRouterAction, Observation as TicketRouterObservation
-        from server.ticket_router_environment import TicketRouterEnvironment
+        from server.ticket_router_environment import AstroEnvironment as TicketRouterEnvironment
     except ModuleNotFoundError:
         from ticket_router.models import Action as TicketRouterAction, Observation as TicketRouterObservation
-        from ticket_router.server.ticket_router_environment import TicketRouterEnvironment
+        from ticket_router.server.ticket_router_environment import AstroEnvironment as TicketRouterEnvironment
 
 
 # Create the app with web interface and README integration

@@ -55,7 +55,7 @@ class TicketRouterEnv(
             Dictionary representation suitable for JSON encoding
         """
         return {
-            "message": action.message,
+            "planet_classification": action.planet_classification,
         }
 
     def _parse_result(self, payload: Dict) -> StepResult[TicketRouterObservation]:
@@ -70,8 +70,11 @@ class TicketRouterEnv(
         """
         obs_data = payload.get("observation", {})
         observation = TicketRouterObservation(
-            echoed_message=obs_data.get("echoed_message", ""),
-            message_length=obs_data.get("message_length", 0),
+            star_type=obs_data.get("star_type", ""),
+            transit_depth_percent=obs_data.get("transit_depth_percent", 0.0),
+            orbital_period_days=obs_data.get("orbital_period_days", 0.0),
+            star_mass_solar=obs_data.get("star_mass_solar", 0.0),
+            available_classifications=obs_data.get("available_classifications", []),
             done=payload.get("done", False),
             reward=payload.get("reward"),
             metadata=obs_data.get("metadata", {}),

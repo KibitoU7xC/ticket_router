@@ -6,6 +6,6 @@
 
 """Ticket Router environment server components."""
 
-from .ticket_router_environment import TicketRouterEnvironment
+from .ticket_router_environment import AstroEnvironment as TicketRouterEnvironment
 
 __all__ = ["TicketRouterEnvironment"]

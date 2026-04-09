@@ -6,20 +6,27 @@ from openenv.core.env_server.types import (
     State as BaseState,
 )
 
-
 class Action(BaseAction):
-    # The agent must choose the correct department based on the ticket
-    department: str
+    # The agent must choose the correct planet classification based on simulated data
+    planet_classification: str
 
 
 class Observation(BaseObservation):
-    # What the agent sees: the complaint and the available options
-    ticket_text: str = ""
-    available_departments: List[str] = []
+    # Astrophysics data provided to the AI
+    star_type: str = ""
+    transit_depth_percent: float = 0.0
+    orbital_period_days: float = 0.0
+    star_mass_solar: float = 0.0
+    available_classifications: List[str] = [
+        "Gas Giant",
+        "Super Earth",
+        "Terrestrial",
+        "No Planet"
+    ]
 
 
 class State(BaseState):
     # Background tracking for the environment
-    current_ticket_id: int = 0
+    current_star_id: int = 0
     total_resolved: int = 0
     failed_attempts: int = 0

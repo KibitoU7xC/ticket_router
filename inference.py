@@ -3,15 +3,12 @@ import json
 import re
 import sys
 from openai import OpenAI
-from server.ticket_router_environment import TicketRouterEnvironment
+from server.ticket_router_environment import AstroEnvironment
 from models import Action
 
 # ──────────────────────────────────────────────────────────────
 #  Structured-output helpers (required by the Phase-2 validator)
 # ──────────────────────────────────────────────────────────────
-
-TASK_NAME = "ticket_router"
-
 
 def emit_start(task_name: str):
     """Print the [START] block the validator looks for."""
@@ -33,84 +30,63 @@ def emit_end(task_name: str, score: float, steps: int):
 # ──────────────────────────────────────────────────────────────
 
 SYSTEM_PROMPT = """\
-You are an expert customer-support ticket routing agent.
-Your ONLY job is to choose the single best department for each ticket.
+You are an expert astrophysicist classifying exoplanets based on telescope data.
+Your ONLY job is to classify the planet based on the star's transit depth and mass.
 
-Rules:
-- Read the ticket carefully and identify the PRIMARY issue.
-- If the ticket mentions a technical problem (crashes, bugs, display issues, \
-login failures, app errors), choose "Tech Support".
-- If the ticket mentions wanting money back, overcharges, or refund requests, \
-choose "Refunds".
-- If the ticket mentions billing questions, payment plans, or invoice \
-inquiries (but NOT refunds), choose "Billing".
-- Only choose "General Inquiry" when the ticket does not fit any other category.
-- When a ticket mentions MULTIPLE issues, prioritise the ACTIONABLE technical \
-problem over a cancellation request.
+Rules for Classification:
+- "Gas Giant": Huge dips in star brightness (transit_depth_percent > 1.0%)
+- "Super Earth": Medium dips in brightness (transit_depth_percent between 0.1% and 1.0%)
+- "Terrestrial": Tiny dips, like Earth (transit_depth_percent < 0.1%)
+- "No Planet": No dip / transit_depth is exactly 0.0
 
-Respond with ONLY a JSON object: {"department": "<chosen department>"}
-Do NOT add any other text.
+Respond with ONLY a JSON object: {"planet_classification": "<chosen class>"}
+Do NOT add any other text or reasoning.
 """
 
 
-def build_user_prompt(ticket_text: str, departments: list[str], history: list[str] | None = None) -> str:
-    """Build the user-turn prompt, optionally including prior wrong guesses."""
+def build_user_prompt(obs) -> str:
     parts = [
-        f'Ticket: "{ticket_text}"',
-        f"Available departments: {departments}",
+        f'Star Type: {obs.star_type}',
+        f'Transit Depth (%): {obs.transit_depth_percent}',
+        f'Orbital Period (Days): {obs.orbital_period_days}',
+        f'Star Mass (Solar): {obs.star_mass_solar}',
+        f"Available Classes: {obs.available_classifications}",
+        'Respond with ONLY: {"planet_classification": "..."}'
     ]
-    if history:
-        parts.append(
-            "Your previous guesses for THIS ticket were WRONG: "
-            + ", ".join(history)
-            + ". Pick a DIFFERENT department."
-        )
-    parts.append('Respond with ONLY: {"department": "..."}')
     return "\n".join(parts)
 
 
-def extract_department(raw: str, valid_departments: list[str]) -> str | None:
-    """Robustly extract department from LLM output, even if it's noisy."""
-    # Try strict JSON first
+def extract_class(raw: str, valid_classes: list[str]) -> str | None:
     try:
         data = json.loads(raw)
-        dept = data.get("department", "").strip()
-        if dept in valid_departments:
-            return dept
+        p_class = data.get("planet_classification", "").strip()
+        if p_class in valid_classes:
+            return p_class
     except (json.JSONDecodeError, AttributeError):
         pass
 
-    # Fallback: regex for {"department": "..."}
-    m = re.search(r'"department"\s*:\s*"([^"]+)"', raw)
-    if m and m.group(1).strip() in valid_departments:
-        return m.group(1).strip()
-
-    # Last resort: check if any valid department name appears verbatim
-    for dept in valid_departments:
-        if dept.lower() in raw.lower():
-            return dept
-
+    for vc in valid_classes:
+        if vc.lower() in raw.lower():
+            return vc
     return None
 
 
-def call_llm(client: OpenAI, model: str, ticket_text: str,
-             departments: list[str], wrong_guesses: list[str] | None = None) -> str:
-    """Call the LLM and return the chosen department (or raise)."""
-    user_prompt = build_user_prompt(ticket_text, departments, wrong_guesses)
+def call_llm(client: OpenAI, model: str, obs) -> str:
+    user_prompt = build_user_prompt(obs)
     response = client.chat.completions.create(
         model=model,
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": user_prompt},
         ],
-        temperature=0.0,  # deterministic for routing
+        temperature=0.0,
         max_tokens=64,
     )
     raw = response.choices[0].message.content.strip()
-    dept = extract_department(raw, departments)
-    if dept is None:
-        raise ValueError(f"Could not parse department from LLM output: {raw}")
-    return dept
+    p_class = extract_class(raw, obs.available_classifications)
+    if p_class is None:
+        raise ValueError(f"Could not parse class from LLM output: {raw}")
+    return p_class
 
 
 # ──────────────────────────────────────────────────────────────
@@ -131,38 +107,28 @@ def main():
         api_key=hf_token,
     )
 
-    env = TicketRouterEnvironment()
+    env = AstroEnvironment()
 
     for task_index in range(3):
-        task_name = f"task_{task_index}"
+        task_name = f"astro_task_{task_index}"
         
-        # We define each ticket as a separate distinct "task" to fulfill the 3 task quota.
         obs = env.reset(episode_id=str(task_index))
-
-        # ── Emit structured start ──
         emit_start(task_name)
 
         step = 1
         try:
-            dept = call_llm(
-                client, model_name,
-                obs.ticket_text, obs.available_departments,
-                None,
-            )
+            p_class = call_llm(client, model_name, obs)
         except Exception as e:
             print(f"LLM error at task {task_name}: {e}", file=sys.stderr)
             emit_step(step, 0.05)
             emit_end(task_name=task_name, score=0.05, steps=step)
             continue
 
-        action = Action(department=dept)
+        action = Action(planet_classification=p_class)
         obs = env.step(action)
         reward = obs.reward
 
-        # ── Emit structured step ──
         emit_step(step, reward)
-
-        # ── Emit structured end ──
         emit_end(task_name=task_name, score=round(reward, 2), steps=step)
 
 
