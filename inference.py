@@ -119,16 +119,17 @@ def call_llm(client: OpenAI, model: str, ticket_text: str,
 
 def main():
     hf_token = os.environ.get("HF_TOKEN")
+    api_base_url = os.environ.get("API_BASE_URL", "https://router.huggingface.co/v1/")
+    model_name = os.environ.get("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
+
     if not hf_token:
-        print("ERROR: HF_TOKEN environment variable is not set.", flush=True)
+        print("ERROR: HF_TOKEN environment variable is not set.", file=sys.stderr)
         sys.exit(1)
 
     client = OpenAI(
-        base_url="https://router.huggingface.co/v1/",
+        base_url=api_base_url,
         api_key=hf_token,
     )
-
-    model_name = "Qwen/Qwen2.5-72B-Instruct"
 
     env = TicketRouterEnvironment()
     obs = env.reset()
@@ -151,7 +152,7 @@ def main():
                 wrong_guesses if wrong_guesses else None,
             )
         except Exception as e:
-            print(f"LLM error at step {step}: {e}", flush=True)
+            print(f"LLM error at step {step}: {e}", file=sys.stderr)
             emit_step(step, 0.0)
             break
 
