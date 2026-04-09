@@ -216,7 +216,9 @@ def call_llm(client: OpenAI, model: str, obs) -> dict:
 #  Main loop — multi-task, multi-step ReAct agent
 # ──────────────────────────────────────────────────────────────
 
-NUM_TASKS = 5  # One per star system
+import random
+
+NUM_TASKS = 12  # One per star system
 
 
 def main():
@@ -231,9 +233,15 @@ def main():
     client = OpenAI(base_url=api_base_url, api_key=hf_token)
     env = AstroEnvironment()
 
+    # Randomised task order for variety (deterministic seed for reproducibility)
+    task_order = list(range(NUM_TASKS))
+    random.seed(42)
+    random.shuffle(task_order)
+
     for task_idx in range(NUM_TASKS):
-        task_name = f"exoplanet_survey_{task_idx}"
-        obs = env.reset(episode_id=str(task_idx))
+        star_id = task_order[task_idx]
+        task_name = f"exoplanet_survey_{star_id}"
+        obs = env.reset(episode_id=str(star_id))
 
         emit_start(task_name)
 

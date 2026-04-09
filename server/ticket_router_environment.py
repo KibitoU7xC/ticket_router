@@ -167,6 +167,181 @@ STAR_SYSTEMS = [
         },
         "target": "Gas Giant",
     },
+    {
+        # Star 5 — Medium: Habitable-zone Super Earth (inspired by TOI-700d)
+        "id": 5,
+        "name": "TOI-700",
+        "star_type": "M2V (Red Dwarf)",
+        "star_mass_solar": 0.42,
+        "star_temperature_k": 3480,
+        "star_distance_ly": 101.4,
+        "transit": {
+            "depth_ppm": 680,
+            "duration_hours": 3.2,
+            "period_days": 37.4,
+        },
+        "radial_velocity": {
+            "amplitude_ms": 1.6,
+            "min_mass_earth": 3.6,
+            "eccentricity": 0.06,
+        },
+        "spectroscopy": {
+            "atmosphere_detected": True,
+            "composition": "N2 dominant, CO2, possible O3 — Biosignature candidate",
+            "surface_temp_k": 268,
+        },
+        "target": "Super Earth",
+    },
+    {
+        # Star 6 — Hard: Neptune-mass but classified as Super Earth (inspired by HAT-P-11b)
+        "id": 6,
+        "name": "HAT-P-11",
+        "star_type": "K4V (Orange Dwarf)",
+        "star_mass_solar": 0.81,
+        "star_temperature_k": 4780,
+        "star_distance_ly": 123.0,
+        "transit": {
+            "depth_ppm": 4200,         # Borderline deep — tricky!
+            "duration_hours": 2.3,
+            "period_days": 4.89,
+        },
+        "radial_velocity": {
+            "amplitude_ms": 11.6,
+            "min_mass_earth": 12.0,    # 12 M⊕ — right at the Super Earth boundary
+            "eccentricity": 0.26,      # Unusually eccentric
+        },
+        "spectroscopy": {
+            "atmosphere_detected": True,
+            "composition": "H2O detected via transmission, He outflow, no thick H2 envelope",
+            "surface_temp_k": 870,
+        },
+        "target": "Super Earth",
+    },
+    {
+        # Star 7 — Medium: Classic water-world Super Earth (inspired by GJ 1214b)
+        "id": 7,
+        "name": "GJ-1214",
+        "star_type": "M4.5V (Red Dwarf)",
+        "star_mass_solar": 0.15,
+        "star_temperature_k": 3026,
+        "star_distance_ly": 48.0,
+        "transit": {
+            "depth_ppm": 1430,
+            "duration_hours": 0.87,
+            "period_days": 1.58,
+        },
+        "radial_velocity": {
+            "amplitude_ms": 12.2,
+            "min_mass_earth": 8.2,
+            "eccentricity": 0.0,
+        },
+        "spectroscopy": {
+            "atmosphere_detected": True,
+            "composition": "Thick hazy atmosphere, likely high mean-molecular-weight (H2O/steam)",
+            "surface_temp_k": 550,
+        },
+        "target": "Super Earth",
+    },
+    {
+        # Star 8 — Hard: Ultra-short-period rocky planet (inspired by Kepler-10b)
+        "id": 8,
+        "name": "Kepler-10",
+        "star_type": "G2V (Sun-like)",
+        "star_mass_solar": 0.91,
+        "star_temperature_k": 5627,
+        "star_distance_ly": 608.0,
+        "transit": {
+            "depth_ppm": 69,           # Extremely shallow — easy to miss
+            "duration_hours": 1.81,
+            "period_days": 0.84,       # Ultra-short period — hint at rocky
+        },
+        "radial_velocity": {
+            "amplitude_ms": 3.3,
+            "min_mass_earth": 1.9,     # Right at Earth/Super-Earth boundary
+            "eccentricity": 0.0,
+        },
+        "spectroscopy": {
+            "atmosphere_detected": False,
+            "composition": "No significant atmosphere — likely bare rock (lava world)",
+            "surface_temp_k": 2170,
+        },
+        "target": "Terrestrial",
+    },
+    {
+        # Star 9 — Hard: False alarm with very low RV (inspired by Barnard's Star controversy)
+        "id": 9,
+        "name": "HD-164922",
+        "star_type": "G9V (Sun-like)",
+        "star_mass_solar": 0.87,
+        "star_temperature_k": 5293,
+        "star_distance_ly": 72.1,
+        "transit": {
+            "depth_ppm": 0,
+            "duration_hours": 0.0,
+            "period_days": 0.0,
+        },
+        "radial_velocity": {
+            "amplitude_ms": 0.8,       # Very marginal — mostly stellar activity
+            "min_mass_earth": 0.0,
+            "eccentricity": 0.0,
+        },
+        "spectroscopy": {
+            "atmosphere_detected": False,
+            "composition": "No planetary signatures, pure stellar chromospheric activity",
+            "surface_temp_k": 0,
+        },
+        "target": "No Planet",
+    },
+    {
+        # Star 10 — Hard: Ultra-hot Jupiter around hot star (inspired by KELT-9b)
+        "id": 10,
+        "name": "KELT-9",
+        "star_type": "B9.5V (Blue-white hot star)",
+        "star_mass_solar": 2.52,
+        "star_temperature_k": 10170,    # Very hot star — unusual host
+        "star_distance_ly": 667.0,
+        "transit": {
+            "depth_ppm": 6780,          # Deep, but less than expected for Gas Giant
+            "duration_hours": 3.9,      # because the star itself is huge
+            "period_days": 1.48,
+        },
+        "radial_velocity": {
+            "amplitude_ms": 275.0,      # Very high — massive planet
+            "min_mass_earth": 920.0,    # ~2.9 Jupiter masses
+            "eccentricity": 0.0,
+        },
+        "spectroscopy": {
+            "atmosphere_detected": True,
+            "composition": "Fe, Ti, Mg vaporised in atmosphere; T_day > 4000 K — hottest known planet",
+            "surface_temp_k": 4050,
+        },
+        "target": "Gas Giant",
+    },
+    {
+        # Star 11 — Hard: Habitable-zone Super Earth with possible biosignatures (inspired by LHS 1140b)
+        "id": 11,
+        "name": "LHS-1140",
+        "star_type": "M4.5V (Red Dwarf)",
+        "star_mass_solar": 0.18,
+        "star_temperature_k": 3131,
+        "star_distance_ly": 48.8,
+        "transit": {
+            "depth_ppm": 3460,         # Deep, but star is very small
+            "duration_hours": 2.0,
+            "period_days": 24.7,
+        },
+        "radial_velocity": {
+            "amplitude_ms": 5.3,
+            "min_mass_earth": 5.6,
+            "eccentricity": 0.0,
+        },
+        "spectroscopy": {
+            "atmosphere_detected": True,
+            "composition": "Possible N2-dominated with CO2, hints of H2O — JWST priority target",
+            "surface_temp_k": 230,
+        },
+        "target": "Super Earth",
+    },
 ]
 
 
