@@ -140,7 +140,7 @@ def build_observation_prompt(obs) -> str:
 # ──────────────────────────────────────────────────────────────
 
 VALID_ACTIONS = {"request_transit", "request_radial_velocity", "request_spectroscopy", "classify"}
-VALID_CLASSES = {"Gas Giant", "Super Earth", "Terrestrial", "No Planet"}
+VALID_CLASSES = ["Gas Giant", "Super Earth", "Terrestrial", "No Planet"]
 
 
 def parse_llm_response(raw: str) -> dict:
@@ -172,7 +172,7 @@ def parse_llm_response(raw: str) -> dict:
         return result
 
     # ── Layer 3: keyword detection ──
-    raw_lower = raw.lower()
+    raw_lower = raw.lower().replace("-", " ").replace("_", " ")
     if "classify" in raw_lower:
         for vc in VALID_CLASSES:
             if vc.lower() in raw_lower:
@@ -189,7 +189,7 @@ def parse_llm_response(raw: str) -> dict:
 
 def _fuzzy_class(text: str) -> str:
     """Best-effort match of a string to a valid classification."""
-    tl = text.lower()
+    tl = text.lower().replace("-", " ").replace("_", " ")
     for vc in VALID_CLASSES:
         if vc.lower() in tl:
             return vc

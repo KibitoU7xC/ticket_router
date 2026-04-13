@@ -47,6 +47,9 @@ except (ImportError, ModuleNotFoundError):
         from ticket_router.server.ticket_router_environment import AstroEnvironment as TicketRouterEnvironment
 
 
+import os
+readme_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "README.md")
+
 # Create the app with web interface and README integration
 app = create_app(
     TicketRouterEnvironment,
@@ -54,6 +57,7 @@ app = create_app(
     TicketRouterObservation,
     env_name="ticket_router",
     max_concurrent_envs=1,  # increase this number to allow more concurrent WebSocket sessions
+    readme_path=readme_path,
 )
 
 
